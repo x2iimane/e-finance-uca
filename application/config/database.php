@@ -76,9 +76,9 @@ $query_builder = TRUE;
 $db['default'] = array(
 	'dsn'	=> '',
 	'hostname' => 'localhost',
-	'username' => 'fin',
-	'password' => 'Finuca08',
-	'database' => 'finance_', // <===== BD JEBLI Yassine
+	'username' => '',
+	'password' => '',
+	'database' => 'finance_',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
 	'pconnect' => FALSE,
