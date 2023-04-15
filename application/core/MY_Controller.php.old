@@ -1,0 +1,38 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class My_Controller extends CI_Controller {
+
+	public $layout;
+	public $inputs;
+	//public $summary;
+
+	public function __construct () {
+		parent::__construct();
+		$this->layout = 'layouts/wrapper';
+	}
+
+	
+
+	public function prepareInputs($data) {
+		foreach($data as $key => $value) {  
+	        if (!empty($value)) {
+	        	if ($key == PASSWORD)
+	        		$this->inputs[$key] = md5($this->input->post($key));
+	        	else
+	        		$this->inputs[$key] = $this->input->post($key);  
+	        }
+	        	
+	    } 
+	    
+	    return $this->inputs;
+	}
+
+	/*
+	if not logged, then redirect to Auth login page
+	*/
+	public function checkIfLogged() {
+		$isLogged = ($this->session->userdata('isLogged') === true)?true:false;
+	    if(!$isLogged)
+	    	redirect('auth');
+	}
+}

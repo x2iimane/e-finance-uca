@@ -1,0 +1,35 @@
+<?php
+
+class User extends CI_Model {
+
+	private $_use_table = 'users';
+
+	public function __construct () {
+		parent::__construct();
+	}
+
+	public function login() {
+		$query = $this->db->get_where($this->_use_table, array('login' => $this->input->post('login'), 'password' => md5($this->input->post('password'))));
+
+		if ($query->num_rows() == 1)
+			return $query->row();
+		else
+			return false;
+	}
+
+	public function getPermission($idprofile){
+		$this->db->select('*');
+		$this->db->from('module_profile');
+		$this->db->where('id_profile',$idprofile);
+		$this->db->join('modules', 'modules.id = module_profile.id_module');
+		$query = $this->db->get();
+
+		if ($query->num_rows() >0)
+			return $query->result_array();
+		else
+			return false;
+	}
+
+}
+
+?>

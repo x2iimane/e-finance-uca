@@ -1,0 +1,100 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Depenses extends MY_Controller {
+
+	function __construct(){
+	    
+	    parent::__construct();
+	   // $this->checkIfLogged();
+		$this->load->model('Depense_article');
+		$this->load->model('DepenseCategorie');
+		$this->load->model('Depense');
+		$this->load->model('Convention');
+		$this->load->model('Budget_etablissement');
+		$this->load->model('Articles');
+		$this->load->model('Fournisseur');
+		$this->load->model('Etablissements');		
+		$this->load->model('typeDepense');		
+
+	}
+
+	public function index()	{
+		// Define Title
+		$data['title'] = '';
+
+		/* Define Content */
+		$data['content'] = 'home/depense';
+
+		$data['etablissements'] = $this->etablissements->getAll();
+		$data['articles'] = $this->articles->getAll();
+		$data['provider'] = $this->Fournisseur->getAll();
+		$data['categories'] = $this->DepenseCategorie->getAll();
+		$data['convention'] = $this->Convention->getAll();
+		$data['nature'] = $this->typeDepense->getAll();
+
+
+		$this->load->view($this->layout, $data);
+
+	}
+
+	public function getBudgetByEtablissement()
+	{
+		header('Content-Type: application/json');
+		$etablissements_id = $this->input->get("etablissements_id");
+		$budget_type = $this->input->get("budget_type");
+		echo json_encode($this->budget_etablissement->getBudgetByEtablissementId($etablissements_id,$budget_type));
+	}
+
+	public function add()
+	{
+		$data_ = $this->input->post();
+		$dataDep = array();
+		if($data_['id_depense_categorie']==1){
+			$budget_etablissements_id = $this->budget_etablissement->getBudgetEtablissementIdByBudgetIdAndEtablissementId($data_['budget_id_fac'],$data_['etablissements_id_fac']);
+			$dataDep = array('reference' =>$data_['reference_fac'], 'object' => $data_['object_fac'],'date' => $data_['date_fac'], 'id_fournisseur' => $data_['id_fournisseur_fac'], 'mht' => $data_['mht_fac'], 'mttc' => $data_['mttc_fac'], 'tva' => $data_['tva_fac'], 'id_depense_categorie' => $data_['id_depense_categorie'], 'id_budget_etab' => $budget_etablissements_id);
+		}
+		elseif($data_['id_depense_categorie']==2){
+			$budget_etablissements_id = $this->budget_etablissement->getBudgetEtablissementIdByBudgetIdAndEtablissementId($data_['budget_id_conv'],$data_['etablissements_id_conv']);
+			$dataDep =array('reference' =>$data_['reference_conv'], 'date' => $data_['date_conv'], 'id_fournisseur' => $data_['id_fournisseur_conv'],'id_convention' => $data_['id_convention_conv'],'ref_lc' => $data_['ref_lc_conv'],'object_lc' => $data_['object_lc_conv'], 'mht' => $data_['mht_conv'], 'mttc' => $data_['mttc_conv'], 'tva' => $data_['tva_conv'], 'id_depense_categorie' => $data_['id_depense_categorie'], 'id_budget_etab' => $budget_etablissements_id);
+		}
+		elseif($data_['id_depense_categorie']==3){
+			$budget_etablissements_id = $this->budget_etablissement->getBudgetEtablissementIdByBudgetIdAndEtablissementId($data_['budget_id_dv'],$data_['etablissements_id_dv']);
+			$dataDep =array('reference' =>$data_['reference_dv'], 'object' => $data_['object_dv'],'date' => $data_['date_dv'], 'interesse' => $data_['interesse_dv'],'mttc' => $data_['mttc_dv'],'id_depense_categorie' => $data_['id_depense_categorie'], 'id_budget_etab' => $budget_etablissements_id);
+		}
+		else{
+			$budget_etablissements_id = $this->budget_etablissement->getBudgetEtablissementIdByBudgetIdAndEtablissementId($data_['budget_id_reg'],$data_['etablissements_id_reg']);
+			$dataDep =array('reference' =>$data_['reference_reg'], 'object' => $data_['object_reg'],'date' => $data_['date_reg'], 'id_fournisseur' => $data_['id_fournisseur_reg'], 'mttc' => $data_['mttc_reg'], 'nom_regisseur' => $data_['nom_regisseur_reg'],'type_regie' => $data_['type_regie_reg'], 'num_autorisation_pai' => $data_['num_autorisation_pai_reg'], 'id_depense_categorie' => $data_['id_depense_categorie'], 'id_budget_etab' => $budget_etablissements_id);
+		}
+
+		$dpLastId = $this->Depense->insert($dataDep);
+
+		if(isset($data_["articles"]) && count($data_["articles"])>0){
+			$articles = $data_["articles"];
+			$quantites = $data_["quantites"];
+			$prix = $data_["prix"];
+			$descriptions = $data_["descriptions"];
+			for($i=0;$i<count($articles);$i++) {
+				if($prix[$i]>0 && $quantites[$i]>0)
+					$this->Depense_article->insert(array('id_depense'=>$dpLastId,'id_article'=>$articles[$i],'qt'=>$quantites[$i],'prix_u'=>$prix[$i],'description'=>$descriptions[$i]));
+			}
+		}	
+
+		$this->session->set_flashdata('msg', 'Bien Ajouté');
+		header("Location: ".base_url()."ListeDepense");
+	}
+
+	public function edit($Id) {
+		// Define Title
+		$data['title'] = 'Bon de Commande - Liquidation';
+
+		/* Define Content */
+		$data['content'] = 'home/edit_bc';
+
+		$result = $this->BonCommande->getById($Id);
+			foreach ($result as $row)
+				$data['data'] = $row;
+
+		$this->load->view($this->layout, $data);
+	}
+
+}

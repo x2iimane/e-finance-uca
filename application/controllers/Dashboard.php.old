@@ -1,0 +1,107 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Dashboard extends MY_Controller {
+
+	function __construct(){
+	    
+	    parent::__construct();
+		$this->load->model('bon_commande');
+		$this->load->model('marches');
+		$this->load->model('budget_etablissement');
+		$this->load->model('etablissements');
+		$this->load->model('ao');
+
+	}
+
+	public function index()	{
+		// Define Title
+		$data['title'] = '';
+
+		/* Define Content */
+		$data['content'] = 'home/dashboard';
+		
+		$this->load->view($this->layout, $data);
+	}
+
+	//ce mois
+	public function getNbrBC()
+	{
+		header('Content-Type: application/json');
+		echo json_encode($this->bon_commande->getCountThisMonth());
+	}
+
+	public function getNbrAOLance()
+	{
+		header('Content-Type: application/json');
+		echo json_encode($this->ao->getAOLance());
+	}
+
+	public function getNbrMarchesSignes()
+	{
+		header('Content-Type: application/json');
+		echo json_encode($this->marches->getNbrMarchesSignes());
+	}
+
+	public function getNbrMarchesAnnules()
+	{
+		header('Content-Type: application/json');
+		echo json_encode($this->marches->getNbrMarchesAnnules());
+	}
+
+	public function getNbrMarchesResilies()
+	{
+		header('Content-Type: application/json');
+		echo json_encode($this->marches->getNbrMarchesResilies());
+	}
+
+	public function getNbrMarchesVises()
+	{
+		header('Content-Type: application/json');
+		echo json_encode($this->marches->getNbrMarchesVises());
+	}
+
+	public function montantMarchesByNature()
+	{
+		header('Content-Type: application/json');
+		echo json_encode($this->marches->montantMarchesByNature());
+	}
+
+	public function getAOLance()
+	{
+		header('Content-Type: application/json');
+		echo json_encode($this->ao->getAOLance());
+	}
+
+	public function getAOAdjuge()
+	{
+		header('Content-Type: application/json');
+		echo json_encode($this->ao->getAOAdjuge());
+	}
+
+	public function getNbrAOByMonth()
+	{
+		header('Content-Type: application/json');
+		echo json_encode($this->ao->getNbrAOByMonth());
+	}
+
+	public function getNbrMarcheByMonth()
+	{
+		header('Content-Type: application/json');
+		echo json_encode($this->marches->getNbrMarcheByMonth());
+	}
+	//nbrAOInfructueux
+
+	public function getNbrAOInfructueux()
+	{
+		header('Content-Type: application/json');
+		echo json_encode($this->ao->getNbrAOInfructueux());
+	}
+
+	//getMarcheMontant
+
+	public function getMontantMarche()
+	{
+		header('Content-Type: application/json');
+		echo json_encode($this->marches->getMontantMarche());
+	}
+}
